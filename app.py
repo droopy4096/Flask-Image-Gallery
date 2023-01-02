@@ -101,6 +101,11 @@ def decode(x):
 @app.route('/dir/<path:filepath>')
 def dirlist(filepath):
     print(filepath)
+    if filepath:
+        parent=os.path.dirname(filepath)
+        print("Parent: {}".format(parent))
+    else:
+        parent=None
     tb=ThumbnailDB(filepath)
     root_dir = os.path.join(app.config['ROOT_DIR'],filepath)
     print(app.config['ROOT_DIR'], root_dir)
@@ -137,7 +142,7 @@ def dirlist(filepath):
                                 "thumb": encode(os.path.join(app.config['THUMBNAIL_DIR'], filepath, file)),
                                 "filename": file })
         # dir_paths.extend(os.path.join(filepath,d) for d in dirs)
-    response=render_template('folder.html', images=images, dirs=dir_paths)
+    response=render_template('folder.html', images=images, dirs=dir_paths, parent=parent)
     tb.save()
     return response
 

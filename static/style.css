@@ -1,6 +1,7 @@
 
 body {
   font-family: Verdana, sans-serif;
+  color: white;
   margin: 0;
   background-color: black;
 }
@@ -17,6 +18,21 @@ a {
   color: white;
 }
 
+#navigation {
+  width: 50%;
+  display: block;
+  padding: 20px 20px 50px 20px;
+  margin: auto auto
+}
+
+.menu {
+  display: inline-block
+}
+
+img.menu {
+  width: 20px;
+  height: 20px;
+}
 
 #folders {
   display: block;
@@ -44,14 +60,19 @@ a {
   display: block;
   width: 100px;
   height: 100px;
+  margin: 0 auto;
 }
 
 .image-thumb {
   display: block;
   width: 150px;
   height: 150px;
+  margin: 0 auto;
 }
 
+img.image-thumb {
+  border-radius: 15px;
+}
 
 .folder-div {
   display: inline-block;
@@ -63,8 +84,11 @@ a {
   overflow: hidden;
   /**/
   background-image: url(/static/folder.svg);
-  background-size: contain
+  background-size: 20px 20px;
+  background-position: 10px 10px;
+  background-repeat: no-repeat;
   /**/
+  margin: 0 auto;
 }
 
 .image-div {
@@ -75,6 +99,7 @@ a {
   width: 200px;
   height: 200px;
   overflow: hidden;
+  margin: 0 auto;
 }
 
 .overlay {

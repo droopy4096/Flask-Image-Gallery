@@ -7,6 +7,12 @@
 </head>
 <body>
 <h1>Flask Image Gallery</h1>
+  <div id="navigation">
+    <a href="/dir/" ><img class="menu" src="/static/home.svg"></a>
+    {% if parent is not none %}
+    <a href="/dir/{{ parent }}" ><img class="menu" src="/static/up.svg"></a>
+    {% endif %}
+  </div>
   {% if dirs %}
   <div id="folders">
     {% for dir in dirs %}
