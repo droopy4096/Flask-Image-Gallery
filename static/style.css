@@ -18,6 +18,13 @@ a {
   color: white;
 }
 
+h1 {
+  display: block;
+  width: 80%;
+  margin: auto auto;
+  padding: 20px
+}
+
 #navigation {
   width: 50%;
   display: block;
