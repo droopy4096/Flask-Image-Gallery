@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/style.css">
+<script type="text/javascript" src="/static/script.js"></script>
+</head>
+<body>
+<h1>Flask Image Gallery</h1>
+  <ul>
+    {% for dir in dirs %}
+    <li><a href="/dir/{{ dirs[dir] }}">{{ dir }}</a></li>
+    {% endfor %}
+  </ul>
+  <div class="cx" style="background-color:#fff;">
+    {% for image in images %}
+    <a href='/cdn/{{ image["path"] }}'><img src='/cdn/{{ image["thumb"] }}' alt="{{ image['filename'] }}" height=100 width=100></a>
+    {% endfor %}
+  </div>
+</body>
+</html>
