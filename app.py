@@ -103,8 +103,9 @@ def dirlist(filepath):
                 print(file)
                 # images.append({"path":encode(os.path.join(filepath,file)), "thumb": encode(tb[file])})
                 tb_entry=tb[file]
-                images.append({"path": encode(os.path.join(filepath,file)), \
-                                "thumb": encode(os.path.join(app.config['THUMBNAIL_DIR'],filepath, file))})
+                images.append({"path": encode(os.path.join(app.config['ROOT_DIR'], filepath,file)), 
+                                "thumb": encode(os.path.join(app.config['THUMBNAIL_DIR'], filepath, file)),
+                                "filename": file })
         # dir_paths.extend(os.path.join(filepath,d) for d in dirs)
     response=render_template('folder.html', images=images, dirs=dir_paths)
     tb.save()
@@ -124,6 +125,7 @@ def all():
 @app.route('/cdn/<path:filepath>')
 def download_file(filepath):
     dir,filename = os.path.split(decode(filepath))
+    # return send_from_directory(dir, filename, attachment_filename=filename, as_attachment=False)
     return send_from_directory(dir, filename, as_attachment=False)
 
 
