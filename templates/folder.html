@@ -9,12 +9,16 @@
 <h1>Flask Image Gallery</h1>
   <ul>
     {% for dir in dirs %}
-    <li><a href="/dir/{{ dirs[dir] }}">{{ dir }}</a></li>
+    {% if dirs[dir]['thumb'] %}
+    <li><a href="/dir/{{ dirs[dir]['path'] }}"><img src="/cdn/{{ dirs[dir]['thumb'] }}" height="100" width="100">{{ dir }}</a></li>
+    {% else %}
+    <li><a href="/dir/{{ dirs[dir]['path'] }}"><img src="/static/folder.svg" height="100" width="100">{{ dir }}</a></li>
+    {% endif %}
     {% endfor %}
   </ul>
   <div class="cx" style="background-color:#fff;">
     {% for image in images %}
-    <a href='/cdn/{{ image["path"] }}'><img src='/cdn/{{ image["thumb"] }}' alt="{{ image['filename'] }}" height=100 width=100></a>
+    <a href='/cdn/{{ image["path"] }}' ><img src='/cdn/{{ image["thumb"] }}' alt="{{ image['filename'] }}" height=100 width=100></a>
     {% endfor %}
   </div>
 </body>

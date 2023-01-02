@@ -11,6 +11,7 @@ import binascii
 import argparse
 import json
 import errno
+import random
 
 THUMBNAIL_SIZE = (100, 100)
 
@@ -24,6 +25,17 @@ def mkdir_p(directory_name):
     except OSError as exc: 
         if exc.errno == errno.EEXIST and os.path.isdir(directory_name):
             pass
+
+def getdir(path):
+    dirs=[]
+    files=[]
+    for dir_entry in os.scandir(path):
+        if dir_entry.is_dir():
+            dirs.append(dir_entry)
+        elif dir_entry.is_file():
+            files.append(dir_entry)
+    return (dirs, files)
+    
 
 class ThumbnailDB(object):
     """Entry:
@@ -95,7 +107,20 @@ def dirlist(filepath):
         # stat=os.stat(dir_entries)
         if dir_entry.is_dir():
             # dir_paths.append(dir_entry.name)
-            dir_paths[dir_entry.name]=os.path.join(filepath, dir_entry.name)
+            subdirs, subfiles = getdir(os.path.join(root_dir, dir_entry.name))
+            icon_files=list(filter(lambda s: any(s.name.endswith(ext) for ext in app.config['IMAGE_EXTS']), subfiles))
+            if icon_files:
+                dir_icon=random.choice(icon_files)
+                subtb=ThumbnailDB(os.path.join(filepath, dir_entry.name))
+                tb_subentry=subtb[dir_icon.name]
+                dir_thumb_name=dir_icon.name
+
+                dir_paths[dir_entry.name]={"path": os.path.join(filepath, dir_entry.name),
+                                        "thumb": encode(os.path.join(app.config['THUMBNAIL_DIR'],filepath,dir_entry.name,dir_icon.name))
+                }
+            else:
+                dir_paths[dir_entry.name]={"path": os.path.join(filepath, dir_entry.name),
+                                        "thumb": None}
         # for file in files:
         if dir_entry.is_file():
             file=dir_entry.name  
