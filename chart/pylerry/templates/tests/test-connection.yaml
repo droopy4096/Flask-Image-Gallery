@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "pylerry.fullname" . }}-test-connection"
+  labels:
+    {{- include "pylerry.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "pylerry.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never
