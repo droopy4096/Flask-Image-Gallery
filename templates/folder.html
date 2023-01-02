@@ -7,19 +7,23 @@
 </head>
 <body>
 <h1>Flask Image Gallery</h1>
-  <ul>
+  {% if dirs %}
+  <div id="folders">
     {% for dir in dirs %}
     {% if dirs[dir]['thumb'] %}
-    <li><a href="/dir/{{ dirs[dir]['path'] }}"><img src="/cdn/{{ dirs[dir]['thumb'] }}" height="100" width="100">{{ dir }}</a></li>
+    <div class="folder-div"><a href="/dir/{{ dirs[dir]['path'] }}"><img class="folder-thumb" src="/cdn/{{ dirs[dir]['thumb'] }}" >{{ dir }}</a></div>
     {% else %}
-    <li><a href="/dir/{{ dirs[dir]['path'] }}"><img src="/static/folder.svg" height="100" width="100">{{ dir }}</a></li>
+    <div class="folder-div"><a href="/dir/{{ dirs[dir]['path'] }}"><img class="folder-thumb" src="/static/folder.svg" >{{ dir }}</a></div>
     {% endif %}
     {% endfor %}
-  </ul>
-  <div class="cx" style="background-color:#fff;">
+  </div>
+  {% endif %}
+  {% if images %}
+  <div id="images">
     {% for image in images %}
-    <a href='/cdn/{{ image["path"] }}' ><img src='/cdn/{{ image["thumb"] }}' alt="{{ image['filename'] }}" height=100 width=100></a>
+    <div class="image-div"><a href='/cdn/{{ image["path"] }}' title="{{ image['filename'] }}"><img class="image-thumb" src='/cdn/{{ image["thumb"] }}' alt="{{ image['filename'] }}" >{{ image['filename'] }}</a></div>
     {% endfor %}
   </div>
+  {% endif %}
 </body>
 </html>

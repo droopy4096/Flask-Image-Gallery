@@ -2,10 +2,79 @@
 body {
   font-family: Verdana, sans-serif;
   margin: 0;
+  background-color: black;
 }
 
 * {
   box-sizing: border-box;
+}
+
+a:visited {
+  color: #73AD21;
+}
+
+a {
+  color: white;
+}
+
+
+#folders {
+  display: block;
+  border-radius: 25px;
+  border: 2px solid gray;
+  padding: 25px;
+  width: 90%;
+  margin: 0 auto;
+  /*
+  background-image: url(/static/folder.svg);
+  background-size: contain
+  */
+}
+
+#images {
+  display: block;
+  border-radius: 25px;
+  border: 2px solid gray;
+  padding: 25px;
+  width: 90%;
+  margin: 0 auto;
+}
+
+.folder-thumb {
+  display: block;
+  width: 100px;
+  height: 100px;
+}
+
+.image-thumb {
+  display: block;
+  width: 150px;
+  height: 150px;
+}
+
+
+.folder-div {
+  display: inline-block;
+  border-radius: 15px;
+  border: 2px solid #73AD21;
+  padding: 25px;
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  /**/
+  background-image: url(/static/folder.svg);
+  background-size: contain
+  /**/
+}
+
+.image-div {
+  display: inline-block;
+  border-radius: 15px;
+  border: 2px solid #73AD21;
+  padding: 25px;
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
 }
 
 .overlay {

@@ -13,7 +13,7 @@ import json
 import errno
 import random
 
-THUMBNAIL_SIZE = (100, 100)
+THUMBNAIL_SIZE = (200, 200)
 
 app = Flask("Flask Image Gallery")
 app.config['IMAGE_EXTS'] = [".png", ".jpg", ".jpeg", ".gif", ".tiff"]
@@ -71,6 +71,7 @@ class ThumbnailDB(object):
                 stored_entry=None
         if stored_entry is None:
                 # regen thumbnail
+                print("Generating thumbnail for {}".format(image_path))
                 image = Image.open(image_path)
                 image.thumbnail(THUMBNAIL_SIZE)
                 mkdir_p(thumbnail_dir)
@@ -96,17 +97,21 @@ def encode(x):
 def decode(x):
     return binascii.unhexlify(x.encode('utf-8')).decode()
 
+@app.route('/dir/', defaults={'filepath':''})
 @app.route('/dir/<path:filepath>')
 def dirlist(filepath):
     print(filepath)
     tb=ThumbnailDB(filepath)
     root_dir = os.path.join(app.config['ROOT_DIR'],filepath)
+    print(app.config['ROOT_DIR'], root_dir)
     images = []
     dir_paths = {}
     for dir_entry in os.scandir(root_dir):
         # stat=os.stat(dir_entries)
         if dir_entry.is_dir():
             # dir_paths.append(dir_entry.name)
+            if dir_entry.name.startswith('.'):
+                continue
             subdirs, subfiles = getdir(os.path.join(root_dir, dir_entry.name))
             icon_files=list(filter(lambda s: any(s.name.endswith(ext) for ext in app.config['IMAGE_EXTS']), subfiles))
             if icon_files:
@@ -136,7 +141,11 @@ def dirlist(filepath):
     tb.save()
     return response
 
-@app.route('/')
+@app.route('/', redirect_to='/dir/')
+def root():
+    pass
+
+@app.route('/all')
 def all():
     root_dir = app.config['ROOT_DIR']
     image_paths = []
