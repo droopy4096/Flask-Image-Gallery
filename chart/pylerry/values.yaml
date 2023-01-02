@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: droopy4096/pylerry
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -80,3 +80,18 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+storage:
+  storageClassName: nfs-client
+  photos: 
+    volume:
+      nfs: 
+        server: 192.168.0.205
+        path: /mnt/Data/family/photos
+        # readonly: true
+  thumbnails:
+    size: "100Gi"
+  existing: {}
+
+global:
+  storageClass: nfs-client

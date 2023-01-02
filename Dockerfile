@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3 as base
 
 RUN mkdir /app /data
 COPY app.py requirements.txt scripts/start.sh /app/

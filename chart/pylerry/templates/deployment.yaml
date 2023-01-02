@@ -35,7 +35,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 5000
               protocol: TCP
           livenessProbe:
             httpGet:
@@ -55,6 +55,18 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: photos
+          {{- toYaml .Values.storage.photos.volume | nindent 10 }}
+        {{- range .Values.storage.photos.mounts }}
+        {{- end }}
+        - name: thumbnails 
+          {{ if .Values.storage.existing.thumbnails }}
+          {{- toYaml .Values.storage.existing.thumbnails | nindent 10 }}
+          {{ else }}
+          persistentVolumeClaim:
+            claimName: {{ include "pylerry.fullname" . }}-thumbnails
+          {{ end }}
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
