@@ -15,7 +15,7 @@
   </div>
   {% if dirs %}
   <div id="folders">
-    {% for dir in dirs %}
+    {% for dir in dirs.keys() | sort %}
     {% if dirs[dir]['thumb'] %}
     <div class="folder-div"><a href="/dir/{{ dirs[dir]['path'] }}"><img class="folder-thumb" src="/cdn/{{ dirs[dir]['thumb'] }}" >{{ dir }}</a></div>
     {% else %}
@@ -26,7 +26,7 @@
   {% endif %}
   {% if images %}
   <div id="images">
-    {% for image in images %}
+    {% for image in images | sort(attribute="filename") %}
     <div class="image-div"><a href='/cdn/{{ image["path"] }}' title="{{ image['filename'] }}"><img class="image-thumb" src='/cdn/{{ image["thumb"] }}' alt="{{ image['filename'] }}" >{{ image['filename'] }}</a></div>
     {% endfor %}
   </div>
