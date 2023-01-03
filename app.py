@@ -3,7 +3,7 @@ from flask import Flask
 from flask import request
 from flask import render_template
 from flask import send_from_directory
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 import os
 import glob
 import sys
@@ -53,7 +53,8 @@ class ThumbnailDB(object):
         except FileNotFoundError as e:
             self.entries={}
 
-    def __getitem__(self,path):
+    # def __getitem__(self,path):
+    def __call__(self,path):
         """Return thumbnail element for specified path"""
         images_path=app.config['ROOT_DIR']
         thumbnails_path=app.config['THUMBNAIL_DIR']
@@ -72,16 +73,23 @@ class ThumbnailDB(object):
         if stored_entry is None:
                 # regen thumbnail
                 print("Generating thumbnail for {}".format(image_path))
-                image = Image.open(image_path)
-                image.thumbnail(THUMBNAIL_SIZE)
-                mkdir_p(thumbnail_dir)
-                image.save(thumbnail_path)
-                e={}
-                e['mtime']=image_stat.st_mtime_ns
-                e['size']=image_stat.st_size
-                self.entries[path]=e
-                stored_entry=e
-                # save new entries
+                try:
+                    image = Image.open(image_path)
+                    image.thumbnail(THUMBNAIL_SIZE)
+                except OSError:
+                    # There was an error generating thumbnail
+                    image = None
+                except UnidentifiedImageError:
+                    image = None
+                if image:
+                    mkdir_p(thumbnail_dir)
+                    image.save(thumbnail_path)
+                    e={}
+                    e['mtime']=image_stat.st_mtime_ns
+                    e['size']=image_stat.st_size
+                    self.entries[path]=e
+                    stored_entry=e
+                    # save new entries
         return stored_entry
 
     def __setitem__(self,path,entry):
@@ -123,7 +131,7 @@ def dirlist(filepath):
             if icon_files:
                 dir_icon=random.choice(icon_files)
                 subtb=ThumbnailDB(os.path.join(filepath, dir_entry.name))
-                tb_subentry=subtb[dir_icon.name]
+                subtb(dir_icon.name)
                 dir_thumb_name=dir_icon.name
 
                 dir_paths[dir_entry.name]={"path": os.path.join(filepath, dir_entry.name),
@@ -138,7 +146,7 @@ def dirlist(filepath):
             if any(file.lower().endswith(ext) for ext in app.config['IMAGE_EXTS']):
                 print(file)
                 # images.append({"path":encode(os.path.join(filepath,file)), "thumb": encode(tb[file])})
-                tb_entry=tb[file]
+                tb(file)
                 images.append({"path": encode(os.path.join(app.config['ROOT_DIR'], filepath,file)), 
                                 "thumb": encode(os.path.join(app.config['THUMBNAIL_DIR'], filepath, file)),
                                 "filename": file })

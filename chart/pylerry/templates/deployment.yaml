@@ -35,7 +35,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 5000
+              containerPort: 80
               protocol: TCP
           livenessProbe:
             httpGet:
@@ -51,7 +51,7 @@ spec:
             - name: LISTEN_HOST
               value: "0.0.0.0"
             - name: LISTEN_PORT
-              value: "5000"
+              value: "80"
           volumeMounts:
             - name: photos
               mountPath: /data/photos
