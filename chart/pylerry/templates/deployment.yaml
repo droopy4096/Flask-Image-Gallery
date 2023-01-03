@@ -39,14 +39,25 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
+              path: /dir/
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /dir/
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: LISTEN_HOST
+              value: "0.0.0.0"
+            - name: LISTEN_PORT
+              value: "5000"
+          volumeMounts:
+            - name: photos
+              mountPath: /data/photos
+              readOnly: true
+            - name: thumbnails
+              mountPath: /data/thumbnails
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

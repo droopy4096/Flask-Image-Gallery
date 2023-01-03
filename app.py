@@ -88,6 +88,7 @@ class ThumbnailDB(object):
         self.entries[path]=entry
 
     def save(self):
+        mkdir_p(os.path.join(app.config['THUMBNAIL_DIR'], self.root_path))
         with open(os.path.join(app.config['THUMBNAIL_DIR'], self.root_path, '.thumbnails.json'),'w') as f:
             f.write(json.dumps(self.entries))
             
@@ -118,7 +119,7 @@ def dirlist(filepath):
             if dir_entry.name.startswith('.'):
                 continue
             subdirs, subfiles = getdir(os.path.join(root_dir, dir_entry.name))
-            icon_files=list(filter(lambda s: any(s.name.endswith(ext) for ext in app.config['IMAGE_EXTS']), subfiles))
+            icon_files=list(filter(lambda s: any(s.name.lower().endswith(ext) for ext in app.config['IMAGE_EXTS']), subfiles))
             if icon_files:
                 dir_icon=random.choice(icon_files)
                 subtb=ThumbnailDB(os.path.join(filepath, dir_entry.name))
@@ -134,7 +135,7 @@ def dirlist(filepath):
         # for file in files:
         if dir_entry.is_file():
             file=dir_entry.name  
-            if any(file.endswith(ext) for ext in app.config['IMAGE_EXTS']):
+            if any(file.lower().endswith(ext) for ext in app.config['IMAGE_EXTS']):
                 print(file)
                 # images.append({"path":encode(os.path.join(filepath,file)), "thumb": encode(tb[file])})
                 tb_entry=tb[file]
@@ -156,7 +157,7 @@ def all():
     image_paths = []
     for root,dirs,files in os.walk(root_dir):
         for file in files:
-            if any(file.endswith(ext) for ext in app.config['IMAGE_EXTS']):
+            if any(file.lower().endswith(ext) for ext in app.config['IMAGE_EXTS']):
                 image_paths.append(encode(os.path.join(root,file)))
     return render_template('index.html', paths=image_paths)
 
