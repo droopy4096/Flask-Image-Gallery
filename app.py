@@ -73,6 +73,7 @@ class ThumbnailDB(object):
         if stored_entry is None:
                 # regen thumbnail
                 print("Generating thumbnail for {}".format(image_path))
+                image=None
                 try:
                     image = Image.open(image_path)
                     image.thumbnail(THUMBNAIL_SIZE)
