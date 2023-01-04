@@ -26,6 +26,9 @@ def mkdir_p(directory_name):
         if exc.errno == errno.EEXIST and os.path.isdir(directory_name):
             pass
 
+def is_image(filename):
+    return any(filename.lower().endswith(ext) for ext in app.config['IMAGE_EXTS'])
+
 def getdir(path):
     dirs=[]
     files=[]
@@ -53,9 +56,8 @@ class ThumbnailDB(object):
         except FileNotFoundError as e:
             self.entries={}
 
-    # def __getitem__(self,path):
     def __call__(self,path):
-        """Return thumbnail element for specified path"""
+        """Generate thumbnail. Return thumbnail entry"""
         images_path=app.config['ROOT_DIR']
         thumbnails_path=app.config['THUMBNAIL_DIR']
         image_path=os.path.join(images_path, self.root_path, path)
@@ -93,6 +95,15 @@ class ThumbnailDB(object):
                     # save new entries
         return stored_entry
 
+    def scan(self):
+        """Scan directory for thumbnails and generate them if needed"""
+        my_dir = os.path.join(app.config['ROOT_DIR'],self.root_path)
+        for dir_entry in os.scandir(my_dir):
+            if dir_entry.is_file():
+                file=dir_entry.name  
+                if is_image(file):
+                    self.__call__(file)
+
     def __setitem__(self,path,entry):
         self.entries[path]=entry
 
@@ -122,18 +133,15 @@ def dirlist(filepath):
     images = []
     dir_paths = {}
     for dir_entry in os.scandir(root_dir):
-        # stat=os.stat(dir_entries)
         if dir_entry.is_dir():
-            # dir_paths.append(dir_entry.name)
             if dir_entry.name.startswith('.'):
                 continue
-            subdirs, subfiles = getdir(os.path.join(root_dir, dir_entry.name))
-            icon_files=list(filter(lambda s: any(s.name.lower().endswith(ext) for ext in app.config['IMAGE_EXTS']), subfiles))
+            _, subfiles = getdir(os.path.join(root_dir, dir_entry.name))
+            icon_files=list(filter(lambda s: is_image(s.name), subfiles))
             if icon_files:
                 dir_icon=random.choice(icon_files)
                 subtb=ThumbnailDB(os.path.join(filepath, dir_entry.name))
                 subtb(dir_icon.name)
-                dir_thumb_name=dir_icon.name
 
                 dir_paths[dir_entry.name]={"path": os.path.join(filepath, dir_entry.name),
                                         "thumb": encode(os.path.join(app.config['THUMBNAIL_DIR'],filepath,dir_entry.name,dir_icon.name))
@@ -141,12 +149,10 @@ def dirlist(filepath):
             else:
                 dir_paths[dir_entry.name]={"path": os.path.join(filepath, dir_entry.name),
                                         "thumb": None}
-        # for file in files:
         if dir_entry.is_file():
             file=dir_entry.name  
-            if any(file.lower().endswith(ext) for ext in app.config['IMAGE_EXTS']):
+            if is_image(file):
                 print(file)
-                # images.append({"path":encode(os.path.join(filepath,file)), "thumb": encode(tb[file])})
                 tb(file)
                 images.append({"path": encode(os.path.join(app.config['ROOT_DIR'], filepath,file)), 
                                 "thumb": encode(os.path.join(app.config['THUMBNAIL_DIR'], filepath, file)),
@@ -160,15 +166,36 @@ def dirlist(filepath):
 def root():
     pass
 
-@app.route('/all')
-def all():
-    root_dir = app.config['ROOT_DIR']
-    image_paths = []
+@app.route('/scan/', defaults={'filepath':''})
+@app.route('/scan/<path:filepath>')
+def scan(filepath):
+    root_dir = os.path.join(app.config['ROOT_DIR'],filepath)
+    for root,dirs,_ in os.walk(root_dir):
+        for dir in dirs:
+            tb=ThumbnailDB(os.path.join(root,dir))
+            tb.scan()
+    return render_template('scan.html')
+
+@app.route('/all/<path:filepath>')
+def all(filepath):
+    root_dir = os.path.join(app.config['ROOT_DIR'],filepath)
+    img_paths=[]
     for root,dirs,files in os.walk(root_dir):
+        for dir in dirs:
+            tb=ThumbnailDB(os.path.join(filepath,dir))
+            try:
+                tb.scan()
+                tb.save()
+            except FileNotFoundError:
+                pass
         for file in files:
-            if any(file.lower().endswith(ext) for ext in app.config['IMAGE_EXTS']):
-                image_paths.append(encode(os.path.join(root,file)))
-    return render_template('index.html', paths=image_paths)
+            if is_image(file):
+                # print(root[len(root_dir)+1:])
+                print(os.path.join(app.config['ROOT_DIR'], filepath, root[len(root_dir)+1:], file))
+                img_paths.append({"path": encode(os.path.join(app.config['ROOT_DIR'], filepath, root[len(root_dir)+1:], file)), 
+                              "thumb": encode(os.path.join(app.config['THUMBNAIL_DIR'], filepath, root[len(root_dir)+1:], file)),
+                              "filename": file })
+    return render_template('index.html', paths=img_paths)
 
 
 @app.route('/cdn/<path:filepath>')
@@ -176,8 +203,6 @@ def download_file(filepath):
     dir,filename = os.path.split(decode(filepath))
     # return send_from_directory(dir, filename, attachment_filename=filename, as_attachment=False)
     return send_from_directory(dir, filename, as_attachment=False)
-
-
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser('Usage: %prog [options]')

@@ -20,3 +20,19 @@ python3 app.py /path/to/your/root/directory/containing/images
 ```
 
 If you wish to run it on a server and view the gallery on your own system then you will need to [port forward](https://www.ssh.com/ssh/tunneling/example) to your local system's IP or you might use a tunnelling service like [ngrok](https://ngrok.com).
+
+
+## Helm chart notes
+
+### Auth configuration
+
+based on [upstream docs](https://kubernetes.github.io/ingress-nginx/examples/auth/basic/):
+
+```shell
+htpasswd -c pylerry.auth user1
+htpasswd pylerry.auth user2
+# ...
+kubectl create namespace pylerry
+kubectl create secret generic pylerry-basic-auth --from-file=auth=pylerry.aut -n pylerry
+helm upgrade --install pylerry chart/pylerry 
+```
